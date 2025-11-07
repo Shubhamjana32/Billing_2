@@ -1,109 +1,1416 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Petuk Biriyana and Resturent — Bill</title>
-  <link rel="stylesheet" href="style.css" />
-  
-  <link rel="icon" href="images/Petuk_logo.jpg" type="image/jpeg" /> 
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Petuk Biriyani Billing App</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Base styles - Clean & Fresh Color Palette */
+        :root {
+          /* LIGHT THEME VARIABLES */
+          --primary-color: #28a745; 
+          --danger-color: #dc3545;
+          --secondary-color: #6c757d;
+          --bg-color: #f0f4f7; 
+          --card-bg: #ffffff; 
+          --text-color: #343a40; 
+          --soft-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+          --border-radius: 6px;
+          --light-border: #dee2e6;
+          --hover-bg: #e9ecef;
+          --success-light: #d4edda;
+          --success-dark: #155724;
+        }
+
+        /* DARK MODE VARIABLES */
+        body.dark-mode {
+            --primary-color: #00bcd4; 
+            --danger-color: #ff5722; 
+            --secondary-color: #90a4ae;
+            --bg-color: #121212; 
+            --card-bg: #1e1e1e; 
+            --text-color: #e0e0e0; 
+            --soft-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+            --light-border: #383838;
+            --hover-bg: #282828;
+            --success-light: #004c4c;
+            --success-dark: #99ffff; 
+        }
+
+        /* --- OPTIMIZED FOR ONE-WINDOW LAYOUT (NO SCROLLING) --- */
+        html, body {
+          height: 100%;
+          margin: 0;
+          padding: 0;
+          overflow: hidden; 
+        }
+
+        body {
+          font-family: 'Roboto', sans-serif; 
+          background-color: var(--bg-color);
+          padding: 20px;
+          color: var(--text-color);
+          display: flex;
+          justify-content: center;
+          align-items: flex-start;
+          font-size: 0.95em;
+          transition: all 0.3s ease;
+        }
+
+        .container {
+          max-width: 1400px; 
+          max-height: calc(100vh - 40px);
+          width: 100%;
+          margin: 0 auto;
+          background: var(--card-bg); 
+          padding: 25px;
+          border-radius: var(--border-radius);
+          box-shadow: var(--soft-shadow);
+          display: flex;
+          flex-direction: column;
+        }
+
+        /* --- MAIN TWO-COLUMN LAYOUT --- */
+        .main-content-split {
+          flex-grow: 1; 
+          display: grid;
+          grid-template-columns: 400px 1fr;
+          gap: 25px;
+          overflow: hidden; 
+        }
+
+        .left-sidebar {
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .right-bill-area {
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            padding-bottom: 5px; 
+        }
+
+        /* Scroll area styling */
+        #quickAddMenu, .bill-table-wrapper, .history-list-scroll, #salesReportArea {
+          flex-grow: 1; 
+          overflow-y: auto; 
+          overflow-x: hidden; 
+          padding-right: 15px; 
+          margin-right: -15px; 
+        }
+
+        /* Scrollbar Styles */
+        .quick-add-scroll::-webkit-scrollbar, .bill-table-wrapper::-webkit-scrollbar, .history-list-scroll::-webkit-scrollbar, #salesReportArea::-webkit-scrollbar { width: 8px; }
+        .quick-add-scroll::-webkit-scrollbar-track, .bill-table-wrapper::-webkit-scrollbar-track, .history-list-scroll::-webkit-scrollbar-track, #salesReportArea::-webkit-scrollbar-track { background: var(--light-border); border-radius: 10px; }
+        .quick-add-scroll::-webkit-scrollbar-thumb, .bill-table-wrapper::-webkit-scrollbar-thumb, .history-list-scroll::-webkit-scrollbar-thumb, #salesReportArea::-webkit-scrollbar-thumb { background: var(--secondary-color); border-radius: 10px; }
+        .quick-add-scroll::-webkit-scrollbar-thumb:hover, .bill-table-wrapper::-webkit-scrollbar-thumb:hover, .history-list-scroll::-webkit-scrollbar-thumb:hover, #salesReportArea::-webkit-scrollbar-thumb:hover { background: #5a646c; }
+        body.dark-mode .quick-add-scroll::-webkit-scrollbar-track, 
+        body.dark-mode .bill-table-wrapper::-webkit-scrollbar-track,
+        body.dark-mode .history-list-scroll::-webkit-scrollbar-track,
+        body.dark-mode #salesReportArea::-webkit-scrollbar-track { background: #383838; }
+        body.dark-mode .quick-add-scroll::-webkit-scrollbar-thumb, 
+        body.dark-mode .bill-table-wrapper::-webkit-scrollbar-thumb,
+        body.dark-mode .history-list-scroll::-webkit-scrollbar-thumb,
+        body.dark-mode #salesReportArea::-webkit-scrollbar-thumb { background: #5a5a5a; }
+        body.dark-mode .quick-add-scroll::-webkit-scrollbar-thumb:hover, 
+        body.dark-mode .bill-table-wrapper::-webkit-scrollbar-thumb:hover,
+        body.dark-mode .history-list-scroll::-webkit-scrollbar-thumb:hover,
+        body.dark-mode #salesReportArea::-webkit-scrollbar-thumb:hover { background: #757575; }
+
+
+        /* Header */
+        .header {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
+          margin-bottom: 20px;
+          flex-shrink: 0; 
+          border-bottom: 2px solid var(--primary-color); 
+          padding-bottom: 15px;
+        }
+
+        .brand {
+          display: flex; 
+          align-items: flex-start; 
+          flex-wrap: wrap; 
+        }
+
+        /* Circular Logo Styling */
+        .restaurant-logo {
+            width: 60px; 
+            height: 60px; 
+            border-radius: 50%; 
+            object-fit: cover; 
+            margin-right: 15px; 
+            border: 2px solid var(--primary-color); 
+            flex-shrink: 0; 
+        }
+
+        .brand h1 {
+          margin: 0;
+          font-size: 2em;
+          color: var(--primary-color);
+          font-weight: 600;
+          letter-spacing: normal;
+        }
+        
+        .brand p.tag {
+          margin: 5px 0 0 0;
+          font-size: 0.85em;
+          color: var(--secondary-color);
+          flex-basis: 100%; 
+          margin-left: 0; 
+          padding-left: 0;
+        }
+        .brand > div {
+            margin-left: 0;
+        }
+
+
+        /* Buttons & Form */
+        .btn { padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; font-weight: 500; margin-left: 5px; transition: all 0.2s ease; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); }
+        .btn:hover { opacity: 0.9; transform: translateY(-1px); box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); }
+        .primary { background-color: var(--primary-color); color: white; }
+        .secondary { background-color: var(--hover-bg); color: var(--text-color); border: 1px solid var(--light-border); }
+        .secondary:hover { background-color: var(--secondary-color); color: white; border-color: var(--secondary-color); }
+        .danger { background-color: var(--danger-color); color: white; }
+
+        .add-form { display: flex; gap: 10px; margin-bottom: 20px; flex-shrink: 0; }
+        .add-form input { 
+            padding: 10px; 
+            border: 1px solid var(--light-border); 
+            border-radius: 4px; 
+            background-color: var(--card-bg); 
+            color: var(--text-color); 
+            transition: border-color 0.2s; 
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05); 
+            min-width: 0;
+            flex-grow: 1; 
+        }
+
+        .add-form button.btn.primary {
+            flex: 0 0 auto; 
+            white-space: nowrap;
+            min-width: 60px; 
+        }
+
+        /* Refined input proportions */
+        #itemName { flex-grow: 3; } 
+        #itemQty { flex-grow: 1; max-width: 70px; } 
+        #itemPrice { flex-grow: 2; } 
+
+
+        /* Quick Add Styling */
+        #quickAddMenu h3 {
+            width: 100%;
+            margin: 15px 0 5px 0;
+            padding: 5px 10px;
+            background-color: var(--hover-bg); 
+            color: var(--primary-color);
+            font-size: 1.15em;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        /* Two-column menu grid */
+        .menu-category-buttons {
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .quick-add-btn {
+          font-size: 0.85em;
+          padding: 8px 12px;
+          width: 100%; 
+          background-color: var(--hover-bg); 
+          color: var(--text-color);
+          border-radius: 6px;
+          border: 1px solid var(--light-border);
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+
+        /* Glow effect for added items */
+        .quick-add-btn.item-added {
+            background-color: var(--success-light); 
+            color: var(--success-dark); 
+            border-color: #c3e6cb;
+            box-shadow: 0 0 10px rgba(40, 167, 69, 0.4); 
+            font-weight: 600;
+        }
+        body.dark-mode .quick-add-btn.item-added {
+            border-color: #008080;
+            box-shadow: 0 0 10px rgba(0, 188, 212, 0.8);
+        }
+        
+        /* New class for flashing newly added rows */
+        .row-added-flash {
+            background-color: var(--success-light) !important; 
+            transition: background-color 0.35s ease-out;
+        }
+        body.dark-mode .row-added-flash {
+            background-color: var(--success-light) !important; /* Uses the dark mode definition for --success-light */
+        }
+
+        .quick-add-btn:hover:not(.item-added) {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+        
+        /* History Tabs Styling */
+        .history-tabs {
+            display: flex;
+            margin-top: 10px;
+            margin-bottom: 15px;
+            flex-shrink: 0;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 10px 15px;
+            border: 1px solid var(--light-border);
+            background-color: var(--hover-bg);
+            color: var(--text-color);
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 500;
+            border-radius: 0; 
+        }
+
+        .tab-btn:first-child { border-top-left-radius: var(--border-radius); border-bottom-left-radius: var(--border-radius); }
+        .tab-btn:last-child { border-top-right-radius: var(--border-radius); border-bottom-right-radius: var(--border-radius); }
+        .tab-btn:not(:last-child) { border-right: none; }
+
+        .tab-btn.active {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+            z-index: 1; 
+        }
+
+        .tab-btn:hover:not(.active) {
+            background-color: var(--light-border);
+        }
+
+        /* Hide/Show Content Areas */
+        .hidden-area { display: none !important; }
+
+        /* History List Styling */
+        #historyList {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        #historyList li {
+            background-color: var(--card-bg);
+            border: 1px solid var(--light-border);
+            border-radius: var(--border-radius);
+            margin-bottom: 10px;
+            padding: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background-color 0.2s;
+        }
+        #historyList li:hover {
+            background-color: var(--hover-bg);
+            cursor: default; 
+        }
+        body.dark-mode #historyList li { background-color: #282828; }
+        body.dark-mode #historyList li:hover { background-color: #383838; }
+
+        .history-info { flex-grow: 1; }
+        .history-time { font-size: 0.9em; color: var(--secondary-color); }
+        .history-total { font-weight: bold; color: var(--primary-color); margin-left: 15px; flex-shrink: 0; }
+        
+        /* Spacing for multiple buttons in history list */
+        .history-actions { flex-shrink: 0; margin-left: 15px; }
+        .small-btn { padding: 5px 10px !important; font-size: 0.8em; margin-left: 8px; } 
+
+        /* Table and Print Styles */
+        .bill-table { width: 100%; border-collapse: collapse; }
+        .bill-table th, .bill-table td { padding: 8px 10px; text-align: left; font-size: 0.9em; border-bottom: 1px solid var(--light-border); }
+        .bill-table thead th { border-bottom: 2px solid var(--light-border); position: sticky; top: 0; background: var(--card-bg); z-index: 10; color: var(--secondary-color); }
+        .col-qty, .col-price, .col-amt { text-align: right; }
+        .remove-btn { padding: 4px 8px !important; font-size: 0.75em; } 
+        
+        .bill-table-footer-static { width: 100%; border-collapse: collapse; margin-top: 5px; flex-shrink: 0; }
+        .bill-table-footer-static tfoot td { padding: 10px; border-top: 3px solid var(--primary-color); font-weight: bold; font-size: 1.1em; background-color: var(--hover-bg); }
+        body.dark-mode .bill-table-footer-static tfoot td { background-color: #252525; }
+
+        /* --- SALES REPORT STYLES --- */
+        .sales-report-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9em;
+        }
+
+        .sales-report-table th, .sales-report-table td {
+            padding: 10px;
+            border-bottom: 1px solid var(--light-border);
+            text-align: left;
+        }
+
+        .sales-report-table thead th {
+            background-color: var(--hover-bg);
+            font-weight: 600;
+            color: var(--primary-color);
+            position: sticky;
+            top: 0;
+            z-index: 5;
+        }
+
+        .sales-report-table tfoot td {
+            border-top: 3px solid var(--primary-color);
+            font-weight: bold;
+            background-color: var(--hover-bg);
+        }
+
+        .col-revenue, .col-qty-sold { text-align: right; }
+
+
+        /* --- NEW PASSWORD PROTECTION STYLES --- */
+        .password-prompt {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 40px 20px;
+            margin-top: 50px; 
+            border: 2px dashed var(--secondary-color);
+            border-radius: var(--border-radius);
+            background-color: var(--hover-bg);
+        }
+
+        .password-prompt h2 {
+            color: var(--danger-color);
+            margin-bottom: 20px;
+        }
+
+        .password-input-group {
+            display: flex;
+            gap: 10px;
+            width: 100%;
+            max-width: 300px;
+            margin-bottom: 15px;
+        }
+
+        #passwordInput {
+            flex-grow: 1;
+            padding: 10px;
+            border: 1px solid var(--light-border);
+            border-radius: 4px;
+            font-size: 1em;
+        }
+
+        #passwordErrorMsg {
+            color: var(--danger-color);
+            font-weight: 600;
+            min-height: 1.5em; 
+        }
+        
+        /* --- PRINT STYLES --- */
+        #printContainer { display: none; }
+        .print-only { display: none; }
+
+        @media print {
+            /* Hide general UI on print */
+            .header, .add-form, .history-tabs, #quickAddMenu, #billingHistory, .actions, .payment-row, .remove, .footer small, .bill-table-footer-static { display: none !important; }
+            .bill-table { display: none !important; }
+            
+            /* Show text receipt for printing */
+            .print-text-receipt { 
+                display: block !important; 
+                font-family: 'Consolas', 'Courier New', monospace; 
+                white-space: pre; 
+                line-height: 1.3; 
+                padding: 0; 
+                margin: 0; 
+                color: #000; 
+                font-size: 11px; 
+            }
+            
+            /* Set print area width */
+            .container, .app-layout { width: 320px !important; max-width: 90%; margin: 0 auto; box-shadow: none; padding: 0; }
+            .print-only.receipt-footer { display: block !important; } 
+        }
+    </style>
 </head>
 <body>
-  <div class="container app-layout">
-    
-    <header class="header">
-      <div class="brand">
-        <img src="images/Petuk_logo.jpg" alt="Petuk Biriyana Logo" class="restaurant-logo" />
-        <h1>Petuk Biriyana and restaurant</h1>
-        <p class="tag">Fresh • Fast • Friendly</p>
-        <p class="tag">petukbiriyani2024@gmail.com • 9733579705 • 8617054124</p>
-        <p class="tag">Jalchak • Pingla • Paschim Medinipur</p>
-      </div>
-      <div class="meta">
-        <p>Date: <strong id="date"></strong></p>
-        <div class="actions">
-          <button id="darkModeToggle" class="btn secondary">🌙 Dark Mode</button>
-          <button id="printBtn" class="btn secondary">Print</button>
-          <button id="clearBtn" class="btn danger">Clear</button>
+
+<div class="container">
+    <div class="header">
+        <div class="brand">
+            <!-- Restaurant Logo Placeholder -->
+            <img src="https://placehold.co/60x60/28a745/ffffff?text=P" class="restaurant-logo" alt="Petuk Biriyani Logo">
+            <div>
+                <h1>Petuk Biriyani & Restaurant</h1>
+                <p class="tag" style="margin-top: 5px;">
+                    Fresh • Fast • Friendly<br>
+                    petukbiriyani2024@gmail.com • +91 9733579705 • +91 8617054124<br>
+                    Jalchak • Pingla • Paschim Medinipur
+                </p>
+            </div>
         </div>
-      </div>
-    </header>
+        <div class="actions">
+            <button id="darkModeToggle" class="btn secondary">🌙 Dark Mode</button>
+            <p id="date" style="font-size:1.1em; font-weight: 600; margin-top: 10px; text-align: right;"></p>
+        </div>
+    </div>
+
+    <div class="main-content-split">
+        <!-- Left Sidebar: Quick Add Menu and History Tabs -->
+        <div class="left-sidebar">
+            <div class="history-tabs">
+                <button id="tabCurrent" class="tab-btn active">বর্তমান বিল</button>
+                <button id="tabHistory" class="tab-btn">বিলিং ইতিহাস</button>
+                <button id="tabReport" class="tab-btn">বিক্রির রিপোর্ট</button> <!-- NEW TAB -->
+            </div>
+
+            <!-- TAB 1: Quick Add Menu -->
+            <div id="quickAddMenu" class="quick-add-scroll active-area">
+                <p>Loading items...</p>
+            </div>
+
+            <!-- TAB 2 & 3: Password Protected Content Container -->
+            <div id="protectedContent" class="hidden-area">
+                
+                <!-- Password Prompt Area (Shared for History & Report) -->
+                <div id="passwordPrompt" class="password-prompt active-area">
+                    <h2>দেখতে পাসওয়ার্ড দিন</h2> <!-- Bangla: Enter Password to View -->
+                    <div class="password-input-group">
+                        <input type="password" id="passwordInput" placeholder="Enter password" autocomplete="off">
+                        <button id="passwordSubmitBtn" class="btn primary">Enter</button>
+                    </div>
+                    <p id="passwordErrorMsg"></p>
+                    <p style="font-size: 0.85em; color: var(--secondary-color);">This step is required for security. Password is <code>************</code></p>
+                </div>
+
+                <!-- History List (Shown after successful authentication & tab switch) -->
+                <div id="billingHistory" class="history-list-scroll hidden-area">
+                    <ul id="historyList">
+                        <!-- History items loaded by JavaScript -->
+                    </ul>
+                </div>
+
+                <!-- Sales Report (Shown after successful authentication & tab switch) -->
+                <div id="salesReportArea" class="hidden-area">
+                    <!-- Sales report table loaded by JavaScript -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Sidebar: Billing Table -->
+        <div class="right-bill-area">
+            
+            <!-- Item Addition Form -->
+            <form id="addForm" class="add-form">
+                <input type="text" id="itemName" placeholder="Item Name" required>
+                <input type="number" id="itemQty" value="1" min="1" placeholder="Quantity" required>
+                <input type="number" id="itemPrice" step="0.01" min="0" placeholder="Price (Rs.)" required>
+                <button type="submit" class="btn primary">Add</button>
+            </form>
+
+            <!-- Billing Table Area -->
+            <div class="bill-table-wrapper">
+                <table class="bill-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 40%;">Item</th>
+                            <th style="width: 15%; text-align: center;">Qty</th>
+                            <th style="width: 20%; text-align: right;">Unit Price</th>
+                            <th style="width: 20%; text-align: right;">Amount</th>
+                            <th style="width: 5%;">Remove</th>
+                        </tr>
+                    </thead>
+                    <tbody id="billBody">
+                        <!-- Items loaded by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Total amount footer (Sticks while scrolling) -->
+            <table class="bill-table-footer-static">
+                <tfoot>
+                    <tr>
+                        <td id="totalTextLabel" style="width: 75%; text-align: right;"></td>
+                        <td id="totalAmount" style="width: 25%; text-align: right;">Rs. 0.00</td>
+                        <!-- Empty last column for alignment with the remove button column -->
+                        <td></td> 
+                    </tr>
+                </tfoot>
+            </table>
+
+            <!-- Payment and Clear/Print Buttons -->
+            <div class="add-form payment-row" style="margin-top: 20px;">
+                <select id="paymentSelect" class="add-form input" style="flex-grow: 1;">
+                    <option value="UPI">UPI / PhonePe / Google Pay</option>
+                    <option value="Cash">Cash</option>
+                    <option value="Card">Card Payment</option>
+                    <option value="Credit">Credit/Due</option>
+                </select>
+                <button id="clearBtn" class="btn secondary">Save & Clear</button>
+                <button id="printBtn" class="btn primary">Print & Save</button>
+            </div>
+        </div>
+    </div>
     
-    <div id="printContainer" class="print-text-receipt"></div>
+    <!-- Print Only Area (Hidden Text Receipt) -->
+    <div id="printContainer" class="print-only print-text-receipt">
+        <!-- Receipt text loaded here during print -->
+    </div>
+    <p id="printPayment" class="print-only receipt-footer"></p>
 
-    <main class="main-content-split">
-        
-      <div class="left-sidebar">
-          <form id="addForm" class="add-form" aria-label="Add item to bill">
-            <input id="itemName" type="text" placeholder="Item name" aria-label="Item name" required />
-            <input id="itemQty" type="number" placeholder="Qty" min="1" value="1" aria-label="Quantity" required />
-            <input id="itemPrice" type="number" placeholder="Price" min="0" step="0.01" aria-label="Price" required />
-            <button type="submit" class="btn primary">Add</button>
-          </form>
+    <!-- Small Footer - DEVELOPER CREDIT REMAINS ONLY HERE -->
+    <small style="text-align: center; color: var(--secondary-color); margin-top: 10px;">
+        © 2024 Petuk Biriyani POS. | Developed by Shubham Jana (devshubhamjana@gmail.com)
+    </small>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // --- Configuration ---
+      const TAX_RATE = 0; 
+      const CORRECT_PASSWORD = 'Shubham@Jana@1234'; 
+      
+      // --- DOM Elements ---
+      const dateEl = document.getElementById('date');
+      const addForm = document.getElementById('addForm');
+      const itemName = document.getElementById('itemName');
+      const itemQty = document.getElementById('itemQty');
+      const itemPrice = document.getElementById('itemPrice');
+      const billBody = document.getElementById('billBody');
+      const totalAmount = document.getElementById('totalAmount');
+      const clearBtn = document.getElementById('clearBtn');
+      const printBtn = document.getElementById('printBtn');
+      
+      // Tab and Protected UI
+      const quickAddMenu = document.getElementById('quickAddMenu'); 
+      const protectedContent = document.getElementById('protectedContent'); // New container
+      const historyContainer = document.getElementById('billingHistory');
+      const historyList = document.getElementById('historyList');
+      const salesReportArea = document.getElementById('salesReportArea'); // New report area
+      
+      const tabCurrent = document.getElementById('tabCurrent');
+      const tabHistory = document.getElementById('tabHistory');
+      const tabReport = document.getElementById('tabReport'); // New tab button
+      
+      // Password UI
+      const passwordPrompt = document.getElementById('passwordPrompt');
+      const passwordInput = document.getElementById('passwordInput');
+      const passwordSubmitBtn = document.getElementById('passwordSubmitBtn');
+      const passwordErrorMsg = document.getElementById('passwordErrorMsg');
+
+      const paymentSelect = document.getElementById('paymentSelect');
+      const printPayment = document.getElementById('printPayment');
+      const printContainer = document.getElementById('printContainer'); 
+      const darkModeToggle = document.getElementById('darkModeToggle');
+      const body = document.body;
+      
+      const quickAddButtons = new Map(); 
+
+      // --- Local Storage Keys ---
+      const STORAGE_KEY_CURRENT_BILL = 'currentBillState';
+      const STORAGE_KEY_HISTORY = 'billingHistory';
+      
+      // Set initial date in English/US format
+      dateEl.textContent = new Date().toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' });
+
+      // -----------------------------------------------------------------
+      // Dark Mode Functionality
+      // -----------------------------------------------------------------
+
+      function toggleDarkMode() {
+          const isDarkMode = body.classList.toggle('dark-mode');
+          localStorage.setItem('darkMode', isDarkMode ? 'enabled' : 'disabled');
+          updateDarkModeButton(isDarkMode);
+      }
+
+      function updateDarkModeButton(isDarkMode) {
+          if (isDarkMode) {
+              darkModeToggle.textContent = '☀️ Light Mode';
+          } else {
+              darkModeToggle.textContent = '🌙 Dark Mode';
+          }
+      }
+
+      const darkModeState = localStorage.getItem('darkMode');
+      const initialDarkMode = darkModeState === 'enabled';
+      if (initialDarkMode) {
+          body.classList.add('dark-mode');
+      }
+      updateDarkModeButton(initialDarkMode);
+
+      if (darkModeToggle) {
+          darkModeToggle.addEventListener('click', toggleDarkMode);
+      }
+
+      // -----------------------------------------------------------------
+      // Tab Switching and Password Logic
+      // -----------------------------------------------------------------
+
+      let isHistoryAuthenticated = false; // History/Report remains authenticated after successful login
+
+      function showTab(tabName) {
+          // Reset all tabs and content areas
+          tabCurrent.classList.remove('active');
+          tabHistory.classList.remove('active');
+          tabReport.classList.remove('active');
           
-          <div class="history-tabs">
-            <button id="tabCurrent" class="tab-btn active">Current Bill</button>
-            <button id="tabHistory" class="tab-btn">History</button>
-          </div>
+          quickAddMenu.classList.add('hidden-area');
+          protectedContent.classList.add('hidden-area'); // Hide the entire protected container
+          historyContainer.classList.add('hidden-area'); 
+          salesReportArea.classList.add('hidden-area');
+          passwordPrompt.classList.add('hidden-area'); 
           
-          <div id="quickAddMenu" class="quick-add-scroll menu-sections active-area"></div>
+          if (tabName === 'current') {
+              tabCurrent.classList.add('active');
+              quickAddMenu.classList.remove('hidden-area');
+          } else if (tabName === 'history' || tabName === 'report') {
+              
+              if (tabName === 'history') {
+                  tabHistory.classList.add('active');
+              } else {
+                  tabReport.classList.add('active');
+              }
+              
+              protectedContent.classList.remove('hidden-area'); // Show protected container
+
+              if (isHistoryAuthenticated) {
+                  // If authenticated, show specific content
+                  if (tabName === 'history') {
+                      historyContainer.classList.remove('hidden-area');
+                      renderHistoryList();
+                  } else { // report
+                      salesReportArea.classList.remove('hidden-area');
+                      generateSalesReport();
+                  }
+                  passwordPrompt.classList.add('hidden-area'); // Ensure prompt is hidden
+              } else {
+                  // Authentication required
+                  passwordPrompt.classList.remove('hidden-area');
+                  passwordInput.value = ''; 
+                  passwordErrorMsg.textContent = '';
+                  passwordInput.focus();
+              }
+          }
+      }
+
+      tabCurrent.addEventListener('click', () => showTab('current'));
+      tabHistory.addEventListener('click', () => showTab('history'));
+      tabReport.addEventListener('click', () => showTab('report'));
+
+      // Password submission logic
+      function handlePasswordSubmit(e) {
+          e.preventDefault();
+          const enteredPassword = passwordInput.value;
+
+          if (enteredPassword === CORRECT_PASSWORD) {
+              isHistoryAuthenticated = true;
+              passwordPrompt.classList.add('hidden-area');
+              passwordErrorMsg.textContent = '';
+              
+              // Re-render based on which protected tab is currently active
+              if (tabHistory.classList.contains('active')) {
+                  historyContainer.classList.remove('hidden-area');
+                  renderHistoryList(); 
+              } else if (tabReport.classList.contains('active')) {
+                  salesReportArea.classList.remove('hidden-area');
+                  generateSalesReport(); 
+              }
+          } else {
+              passwordErrorMsg.textContent = 'Incorrect Password! Please try again.';
+              passwordInput.value = '';
+              passwordInput.focus();
+          }
+      }
+
+      passwordSubmitBtn.addEventListener('click', handlePasswordSubmit);
+      passwordInput.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') {
+              handlePasswordSubmit(e);
+          }
+      });
+      
+      // Menu item definitions (English)
+      const categorizedSuggestions = {
+          'Biriyani': [
+              { name: 'Chicken Biriyani Full', price: 110 },
+              { name: 'Chicken Biriyani Half', price: 80 },
+              { name: 'Paneer Biriyani Full', price: 110 },
+              { name: 'Paneer Biriyani Half', price: 80 },
+              { name: 'Potato Biriyani Full', price: 70 },
+              { name: 'Potato Biriyani Half', price: 50 },
+              { name: 'Veg Biriyani Full', price: 90 },
+              { name: 'Veg Biriyani Half', price: 70 },
+          ],
+          'Chowmein & Noodles': [
+              { name: 'Chicken Chowmein Full', price: 70 },
+              { name: 'Chicken Chowmein Half', price: 50 },
+              { name: 'Egg Chowmein Full', price: 50 },
+              { name: 'Egg Chowmein Half', price: 30 },
+              { name: 'Veg Chowmein Full', price: 50 },
+              { name: 'Veg Chowmein Half', price: 30 },
+          ],
+          'Rolls & Momos': [
+              { name: 'Chicken Roll', price: 60 },
+              { name: 'Egg Roll', price: 30 },
+              { name: 'Veg Roll', price: 30 },
+              { name: 'Chicken Momos', price: 50 },
+              { name: 'Chicken Momos Half', price: 30 },
+          ],
+          'Other Items': [
+              { name: 'Chicken Pakora', price: 15 },
+              { name: 'Veg Pakora', price: 10 },
+              { name: 'Chicken Kasha Full', price: 40 },
+              { name: 'Chicken Kasha Half', price: 25 },
+              { name: 'Boiled Egg', price: 10 },
+              { name: 'Omelette', price: 15 },
+              { name: 'Egg Toast', price: 30 },
+              { name: 'Egg Poach', price: 15 },
+              { name: 'Cold Drink', price: 40 }
+          ]
+      };
+
+      const allSuggestions = Object.values(categorizedSuggestions).flat();
+      
+      // Datalist setup for Item Name input
+      const dataListId = 'items-list';
+      const dl = document.createElement('datalist');
+      dl.id = dataListId;
+      allSuggestions.forEach(s => {
+          const opt = document.createElement('option');
+          opt.value = s.name;
+          opt.dataset.price = s.price;
+          dl.appendChild(opt);
+      });
+      document.body.appendChild(dl);
+      itemName.setAttribute('list', dataListId);
+
+      // Create Quick-Add Buttons
+      if (quickAddMenu) { 
+          quickAddMenu.innerHTML = ''; 
           
-          <div id="billingHistory" class="history-list-scroll hidden-area">
-            <ul id="historyList">
-                </ul>
-          </div>
+          for (const category in categorizedSuggestions) {
+              const header = document.createElement('h3');
+              header.textContent = category;
+              quickAddMenu.appendChild(header);
+
+              const buttonWrapper = document.createElement('div');
+              buttonWrapper.className = 'menu-category-buttons';
+              quickAddMenu.appendChild(buttonWrapper);
+
+              categorizedSuggestions[category].forEach(s => {
+                  const btn = document.createElement('button');
+                  btn.type = 'button';
+                  btn.className = 'btn secondary quick-add-btn';
+                  
+                  // Use innerHTML for styling
+                  btn.innerHTML = `<span class="item-name-menu">${s.name}</span><span class="item-price-menu">${formatCurrency(s.price)}</span>`;
+                  
+                  quickAddButtons.set(s.name, btn); 
+                  
+                  btn.addEventListener('click', () => {
+                      const row = createRow(s.name, 1, s.price);
+                      billBody.appendChild(row);
+                      updateTotal();
+                      
+                      // FIX: Replaced invalid JS syntax with class-based flashing
+                      row.classList.add('row-added-flash');
+                      setTimeout(() => { 
+                          row.classList.remove('row-added-flash'); 
+                      }, 350);
+                  });
+                  buttonWrapper.appendChild(btn); 
+              });
+          }
+      }
+
+      // Update menu button highlights based on current bill
+      function updateMenuHighlights() {
+          const itemsInBill = new Set();
+          billBody.querySelectorAll('tr').forEach(row => {
+              const name = row.querySelector('.item-name').textContent;
+              itemsInBill.add(name);
+          });
+
+          quickAddButtons.forEach((btn, name) => {
+              if (itemsInBill.has(name)) {
+                  btn.classList.add('item-added');
+              } else {
+                  btn.classList.remove('item-added');
+              }
+          });
+      }
+      
+      // -----------------------------------------------------------------
+      // Billing History and Reporting Functions
+      // -----------------------------------------------------------------
+
+      function getHistory() {
+          const raw = localStorage.getItem(STORAGE_KEY_HISTORY);
+          return raw ? JSON.parse(raw) : [];
+      }
+
+      function saveHistory(newBill) {
+          const history = getHistory();
+          // Avoid saving the same bill ID repeatedly
+          if (history.length > 0 && history[0].billId === newBill.billId) return;
+
+          history.unshift(newBill);
+          localStorage.setItem(STORAGE_KEY_HISTORY, JSON.stringify(history));
           
-      </div>
+          // Only re-render if the history/report tab is active and authenticated
+          if (isHistoryAuthenticated) {
+              if (tabHistory.classList.contains('active')) renderHistoryList(); 
+              else if (tabReport.classList.contains('active')) generateSalesReport();
+          }
+      }
 
-      <div class="right-bill-area">
-          <div class="bill-table-wrapper">
-              <table id="billTable" class="bill-table" aria-label="Bill items">
-                <thead>
-                  <tr>
-                    <th class="col-item">Item</th>
-                    <th class="col-qty">Qty</th>
-                    <th class="col-price">Price</th>
-                    <th class="col-amt">Amount</th>
-                    <th></th>
-                  </tr>
-                </thead>
-                <tbody id="billBody">
-                  </tbody>
-              </table>
-          </div>
-          <table class="bill-table-footer-static" aria-hidden="true">
-            <tfoot>
-              <tr class="sep-row"><td colspan="4" class="sep">----------------------------------</td><td></td></tr>
-              <tr class="total-row">
-                <td colspan="2" class="text-left">Subtotal</td>
-                <td id="totalTextLabel" class="text-right"> </td>
-                <td id="totalAmount">Rs. 0.00</td>
-                <td></td>
-              </tr>
-            </tfoot>
-          </table>
+      /**
+       * Deletes a bill from the history based on its timestamp ID.
+       * @param {number} timestamp - The unique timestamp ID of the bill to delete.
+       */
+      function deleteHistoricalBill(timestamp) {
+          const billId = timestamp.toString().slice(-4);
+          if (!confirm(`Are you sure you want to permanently delete Bill #${billId} from history? This action cannot be undone.`)) {
+              return;
+          }
+          
+          const history = getHistory();
+          // Filter out the bill that matches the timestamp
+          const updatedHistory = history.filter(bill => bill.timestamp !== timestamp);
+          
+          if (updatedHistory.length < history.length) {
+              localStorage.setItem(STORAGE_KEY_HISTORY, JSON.stringify(updatedHistory));
+              alert(`Bill #${billId} successfully deleted.`);
+          } else {
+              alert('Error: Bill not found or could not be deleted.');
+          }
+          
+          if (tabHistory.classList.contains('active')) renderHistoryList(); // Re-render history list
+          if (tabReport.classList.contains('active')) generateSalesReport(); // Re-render report
+      }
 
-          <div class="payment-row">
-            <label for="paymentSelect">Payment:</label>
-            <select id="paymentSelect" aria-label="Payment method">
-              <option>UPI</option>
-              <option>Cash</option>
-              <option>Card</option>
-              <option>Other</option>
-            </select>
-          </div>
-      </div>
+      function renderHistoryList() {
+          // Check if history container is currently visible/active before rendering
+          if (historyContainer.classList.contains('hidden-area')) return;
 
-    </main>
+          historyList.innerHTML = '';
+          const history = getHistory();
 
-    <footer class="footer">
-      <div class="print-only receipt-footer">
-        <p id="printPayment">Payment: UPI</p>
-      </div>
-      <small>Thank you for dining with us.</small>
-    </footer>
-  </div>
+          if (history.length === 0) {
+              historyList.innerHTML = '<li style="justify-content:center; color: var(--secondary-color);">কোনো বিলিং ইতিহাস সংরক্ষণ করা হয়নি।</li>'; // Bangla: No billing history saved yet.
+              return;
+          }
 
-  <script src="script.js" defer></script>
+          history.forEach((bill) => {
+              const li = document.createElement('li');
+              
+              const date = new Date(bill.timestamp);
+              // Format time and date for history list display (English/US)
+              const timeStr = date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+              const dateStr = date.toLocaleDateString('en-US', { day: 'numeric', month: 'short' });
+              
+              li.innerHTML = `
+                  <div class="history-info">
+                      <strong>বিল #${bill.billId}</strong> <!-- Bangla: Bill -->
+                      <div class="history-time">${dateStr} at ${timeStr}</div>
+                  </div>
+                  <span class="history-total">${formatCurrency(bill.grandTotal)}</span>
+                  <div class="history-actions">
+                      <button class="btn secondary small-btn load-bill">লোড করুন</button> <!-- Bangla: Load -->
+                      <button class="btn danger small-btn delete-bill">ডিলিট করুন</button> <!-- Bangla: Delete -->
+                  </div>
+              `;
+              
+              li.querySelector('.load-bill').addEventListener('click', (e) => {
+                  e.stopPropagation(); 
+                  loadHistoricalBill(bill);
+              });
+
+              li.querySelector('.delete-bill').addEventListener('click', (e) => {
+                  e.stopPropagation();
+                  deleteHistoricalBill(bill.timestamp);
+              });
+
+              historyList.appendChild(li);
+          });
+      }
+      
+      function loadHistoricalBill(bill) {
+          if (!confirm('ঐতিহাসিক বিলটি লোড করলে বর্তমান বিলটি প্রতিস্থাপিত হবে। আপনি কি চালিয়ে যেতে চান?')) { // Bangla: Loading this historical bill will replace the current one. Continue?
+              return;
+          }
+          
+          billBody.innerHTML = '';
+          
+          if (Array.isArray(bill.items)) {
+              bill.items.forEach(it => {
+                  const row = createRow(it.name, it.qty, it.price, it.id);
+                  billBody.appendChild(row);
+              });
+          }
+          if (bill.payment && paymentSelect) paymentSelect.value = bill.payment;
+          
+          localStorage.removeItem(STORAGE_KEY_CURRENT_BILL); 
+          
+          updateTotal(true); 
+          
+          showTab('current');
+
+          alert(`ঐতিহাসিক বিল #${bill.billId} সফলভাবে লোড হয়েছে। আপনি এখন এটি সংশোধন বা প্রিন্ট করতে পারেন।`); // Bangla: Historical Bill... successfully loaded.
+      }
+
+      /**
+       * Aggregates sales data from history and generates the report table.
+       */
+      function generateSalesReport() {
+          // Check if report container is currently visible/active before rendering
+          if (salesReportArea.classList.contains('hidden-area')) return;
+          
+          const history = getHistory();
+          const salesSummary = {}; 
+          let grandTotalRevenue = 0;
+
+          history.forEach(bill => {
+              if (Array.isArray(bill.items)) {
+                  bill.items.forEach(item => {
+                      const name = item.name;
+                      const qty = Number(item.qty) || 0;
+                      const amount = Number(item.amount) || 0;
+
+                      if (name && qty > 0 && amount >= 0) {
+                          if (!salesSummary[name]) {
+                              salesSummary[name] = { totalQty: 0, totalRevenue: 0 };
+                          }
+                          salesSummary[name].totalQty += qty;
+                          salesSummary[name].totalRevenue += amount;
+                          grandTotalRevenue += amount;
+                      }
+                  });
+              }
+          });
+
+          // Convert to array for sorting (by highest revenue)
+          const sortedSales = Object.entries(salesSummary)
+              .map(([name, data]) => ({ name, ...data }))
+              .sort((a, b) => b.totalRevenue - a.totalRevenue); 
+
+          let html = '';
+
+          if (sortedSales.length === 0) {
+              html = '<p style="text-align: center; color: var(--secondary-color); padding: 20px;">ইতিহাসে বিক্রির কোনো ডেটা পাওয়া যায়নি।</p>'; // Bangla: No sales data found in history.
+          } else {
+              
+              html = `
+                  <table class="sales-report-table">
+                      <thead>
+                          <tr>
+                              <th style="width: 50%;">পণ্য (Item)</th> <!-- Bangla: Item -->
+                              <th class="col-qty-sold" style="width: 20%;">মোট বিক্রি (Total Sold)</th> <!-- Bangla: Total Sold -->
+                              <th class="col-revenue" style="width: 30%;">মোট আয় (Total Revenue)</th> <!-- Bangla: Total Revenue -->
+                          </tr>
+                      </thead>
+                      <tbody>
+              `;
+
+              sortedSales.forEach(item => {
+                  html += `
+                      <tr>
+                          <td>${escapeHtml(item.name)}</td>
+                          <td class="col-qty-sold">${Math.round(item.totalQty)}</td>
+                          <td class="col-revenue">${formatCurrency(item.totalRevenue)}</td>
+                      </tr>
+                  `;
+              });
+
+              html += `
+                      </tbody>
+                      <tfoot>
+                          <tr>
+                              <td>মোট বিক্রয় (গ্র্যান্ড টোটাল)</td> <!-- Bangla: Grand Total Sales -->
+                              <td></td>
+                              <td class="col-revenue">${formatCurrency(grandTotalRevenue)}</td>
+                          </tr>
+                      </tfoot>
+                  </table>
+              `;
+          }
+
+          salesReportArea.innerHTML = html;
+      }
+
+      // -----------------------------------------------------------------
+      // Bill/Storage Functions
+      // -----------------------------------------------------------------
+
+      function formatCurrency(num) {
+          // Format currency in Indian Rupees
+          return 'Rs. ' + Number(num).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      }
+      
+      // Format timestamp for file names
+      function formatTimestampForFilename(timestamp) {
+          const date = new Date(timestamp);
+          const y = date.getFullYear();
+          const m = String(date.getMonth() + 1).padStart(2, '0');
+          const d = String(date.getDate()).padStart(2, '0');
+          const h = String(date.getHours()).padStart(2, '0');
+          const min = String(date.getMinutes()).padStart(2, '0');
+          const s = String(date.getSeconds()).padStart(2, '0');
+          return `${y}-${m}-${d}_${h}-${min}-${s}`;
+      }
+
+      function saveToStorage(key = STORAGE_KEY_CURRENT_BILL) {
+          const items = [];
+          let subtotal = 0;
+          billBody.querySelectorAll('tr[data-id]').forEach(tr => {
+              const name = tr.querySelector('.item-name').textContent;
+              const qty = Number(tr.querySelector('.qty').value) || 1;
+              const price = Number(tr.querySelector('.prc').value) || 0;
+              const amount = qty * price;
+              items.push({ id: tr.dataset.id, name, qty, price, amount });
+              subtotal += amount;
+          });
+
+          const timestamp = Date.now();
+          const state = {
+              items,
+              payment: paymentSelect ? paymentSelect.value : 'UPI',
+              billId: Math.floor(timestamp / 1000).toString().slice(-4), // 4-digit Bill ID
+              grandTotal: subtotal,
+              timestamp: timestamp
+          };
+          localStorage.setItem(key, JSON.stringify(state));
+          return state; 
+      }
+
+      function loadFromStorage(key = STORAGE_KEY_CURRENT_BILL) {
+          const raw = localStorage.getItem(key);
+          if (!raw) return false;
+          
+          billBody.innerHTML = '';
+          
+          try {
+              const state = JSON.parse(raw);
+              if (Array.isArray(state.items)) {
+                  state.items.forEach(it => {
+                      const row = createRow(it.name, it.qty, it.price, it.id);
+                      billBody.appendChild(row);
+                  });
+              }
+              if (state.payment && paymentSelect) paymentSelect.value = state.payment;
+              
+              updateTotal(false); 
+              return true;
+          } catch {
+              return false;
+          }
+      }
+
+      function updateTotal(shouldSave = true) {
+          let subtotal = 0;
+          const billItemsData = []; 
+          
+          billBody.querySelectorAll('tr').forEach(row => {
+              const qty = Number(row.querySelector('.qty').value);
+              const price = Number(row.querySelector('.prc').value);
+              const amt = qty * price; 
+              
+              row.dataset.amount = amt.toFixed(2); 
+              row.querySelector('.amt').textContent = formatCurrency(amt); 
+              
+              subtotal += amt;
+              
+              billItemsData.push({
+                  name: row.querySelector('.item-name').textContent,
+                  qty: qty,
+                  price: price,
+                  amount: amt
+              });
+          });
+          
+          const totalTextLabel = document.getElementById('totalTextLabel');
+          const totalAmountEl = document.getElementById('totalAmount');
+
+          if (subtotal === 0) {
+              totalAmountEl.textContent = formatCurrency(0);
+              if (totalTextLabel) totalTextLabel.textContent = ''; 
+              printContainer.textContent = generateEmptyReceipt(); 
+              if (shouldSave) localStorage.removeItem(STORAGE_KEY_CURRENT_BILL);
+              updateMenuHighlights(); 
+              return;
+          }
+          
+          if (totalTextLabel) totalTextLabel.textContent = 'Total'; 
+          const grand = subtotal; 
+
+          totalAmountEl.textContent = formatCurrency(subtotal); 
+
+          // Save current bill state (to get Bill ID/Timestamp)
+          const currentBillState = saveToStorage(STORAGE_KEY_CURRENT_BILL); 
+          
+          // Generate Text Receipt
+          printContainer.textContent = generateTextReceipt(
+              billItemsData, 
+              subtotal, 
+              grand, 
+              paymentSelect.value || 'UPI', 
+              dateEl.textContent, 
+              currentBillState.billId
+          );
+
+          updateMenuHighlights(); 
+      }
+
+      // --- Utility Functions ---
+      
+      function generateEmptyReceipt() {
+          const lines = [
+              '  *** Petuk Biriyani & Restaurant ***',
+              '         Fresh • Fast • Friendly',
+              '\n---------------------------------------',
+              '\n           BILL IS EMPTY\n',
+              '      Thank you for dining with us.'
+          ];
+          return lines.join('\n');
+      }
+
+      function generateTextReceipt(items, subtotal, grandTotal, paymentMethod, date, billId) {
+          const SEP = '---------------------------------------';
+          const lines = [];
+          const currentTime = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+          
+          // Restaurant Details (ENSURE MATCHES WEB PAGE)
+          lines.push('  *** Petuk Biriyani & Restaurant ***');
+          lines.push('         Fresh • Fast • Friendly');
+          lines.push('     petukbiriyani2024@gmail.com');
+          lines.push('  +91 9733579705 • +91 8617054124');
+          lines.push('  Jalchak • Pingla • Paschim Medinipur');
+          lines.push(SEP);
+          
+          lines.push(`Bill ID: #${billId}`);
+          lines.push(`Date: ${date}`);
+          lines.push(`Time: ${currentTime}`);
+          lines.push(SEP);
+          
+          lines.push('Item                 Qty Unit Price  Amount');
+          lines.push(SEP);
+
+          let totalItems = 0;
+          items.forEach(item => {
+              const name = String(item.name).padEnd(21).slice(0, 21); 
+              const qty = String(item.qty).padStart(3); 
+              // Right align Unit Price with "Rs."
+              const unitPrice = ('Rs.' + item.price.toFixed(2)).padStart(10); 
+              // Right align Amount as a number
+              const amount = item.amount.toFixed(2).padStart(8); 
+              lines.push(`${name}${qty}${unitPrice} ${amount}`);
+              totalItems += item.qty;
+          });
+
+          lines.push(SEP);
+
+          const totalAmountNumeric = items.reduce((sum, item) => sum + item.amount, 0); 
+          
+          const subtotalText = `Total Items (${totalItems} Pcs)`.padEnd(28);
+          lines.push(`${subtotalText}${totalAmountNumeric.toFixed(2).padStart(8)}`);
+          
+          lines.push('Discount (0%)'.padEnd(28) + (0).toFixed(2).padStart(8));
+          lines.push(`Tax (0%)`.padEnd(28) + (0).toFixed(2).padStart(8)); 
+          
+          lines.push(SEP);
+          
+          const grandTotalText = 'GRAND TOTAL'.padEnd(28);
+          lines.push(`${grandTotalText}${totalAmountNumeric.toFixed(2).padStart(8)}`);
+          
+          lines.push(SEP);
+
+          lines.push(`Payment Method: ${paymentMethod}`);
+          lines.push(`Cashier: Petuk Staff`);
+          lines.push('\n      Thank you for dining with us.');
+
+          return lines.join('\n');
+      }
+
+      function escapeHtml(s) {
+          // Simple utility to prevent XSS
+          return String(s).replace(/[&<>"']/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"}[c]));
+      }
+      
+      function createRow(name, qty, price, id = null) {
+          const q = Number(qty) || 1;
+          const p = Number(price) || 0;
+          const amount = q * p;
+          const tr = document.createElement('tr');
+          tr.dataset.amount = amount.toFixed(2);
+          tr.dataset.id = id || Date.now().toString(); 
+          
+          tr.innerHTML = `
+              <td class="col-item item-name">${escapeHtml(name)}</td>
+              <td class="col-qty" data-qty="${q}">
+                  <input class="qty" type="number" min="1" value="${q}" aria-label="Quantity of ${escapeHtml(name)}" />
+              </td>
+              <td class="col-price" data-price-unit="${formatCurrency(p)}">
+                  <input class="prc" type="number" min="0" step="0.01" value="${p.toFixed(2)}" aria-label="Price of ${escapeHtml(name)}" />
+              </td>
+              <td class="col-amt amt">${formatCurrency(amount)}</td>
+              <td><button class="btn remove danger remove-btn" type="button" aria-label="Remove ${escapeHtml(name)}">X</button></td>
+          `;
+
+          const qtyInput = tr.querySelector('.qty');
+          const prcInput = tr.querySelector('.prc');
+
+          function recalc() {
+              const qv = Math.max(1, Math.round(Number(qtyInput.value)) || 1); 
+              const pv = Math.max(0, Number(prcInput.value) || 0);
+
+              qtyInput.value = qv;
+              prcInput.value = pv.toFixed(2);
+              
+              tr.querySelector('.col-qty').dataset.qty = qv;
+              tr.querySelector('.col-price').dataset.priceUnit = formatCurrency(pv);
+              
+              updateTotal(); 
+          }
+
+          qtyInput.addEventListener('input', recalc);
+          prcInput.addEventListener('input', recalc);
+
+          qtyInput.addEventListener('keydown', (ev) => {
+              // Quick change functionality for keyboard users
+              if (ev.key === '+' || ev.key === '=') { ev.preventDefault(); qtyInput.value = Number(qtyInput.value || 0) + 1; recalc(); }
+              else if (ev.key === '-') { ev.preventDefault(); qtyInput.value = Math.max(1, Number(qtyInput.value || 1) - 1); recalc(); }
+          });
+
+          tr.querySelector('.remove').addEventListener('click', () => {
+              if (confirm(`Remove "${tr.querySelector('.item-name').textContent}" from the bill?`)) {
+                  tr.remove();
+                  updateTotal();
+              }
+          });
+
+          return tr;
+      }
+
+      // --- Event Listeners ---
+
+      // Item Add Form Submission
+      addForm.addEventListener('submit', (e) => {
+          e.preventDefault();
+          
+          const toTitleCase = (str) => String(str).toLowerCase().split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+
+          const name = toTitleCase(itemName.value.trim());
+          const qty = Math.max(1, Number(itemQty.value) || 1);
+          const price = Math.max(0, Number(itemPrice.value) || 0);
+
+          if (!name) { itemName.focus(); return; }
+
+          const row = createRow(name, qty, price);
+          billBody.appendChild(row);
+          updateTotal();
+          
+          // Scroll to the bottom of the bill
+          const billWrapper = document.querySelector('.bill-table-wrapper');
+          if (billWrapper) billWrapper.scrollTop = billWrapper.scrollHeight;
+
+          itemName.value = '';
+          itemQty.value = '1';
+          itemPrice.value = '';
+          itemName.focus();
+      });
+
+      // Clear Button: Save to history and clear the bill
+      clearBtn.addEventListener('click', () => {
+          if (billBody.children.length === 0) {
+              alert('The current bill is already empty.');
+              return;
+          }
+          
+          if (confirm('Save the current bill and clear it? This will move it to History.')) {
+              const currentBillState = JSON.parse(localStorage.getItem(STORAGE_KEY_CURRENT_BILL));
+              if (currentBillState && currentBillState.items && currentBillState.items.length > 0) {
+                  saveHistory(currentBillState); 
+              }
+
+              billBody.innerHTML = '';
+              localStorage.removeItem(STORAGE_KEY_CURRENT_BILL);
+              updateTotal(); 
+          }
+      });
+
+      // Download File Function
+      function downloadReceiptFile(receiptText, timestamp) {
+          const filenameTime = formatTimestampForFilename(timestamp);
+          const filename = `Petuk_Bill_${filenameTime}.txt`;
+          
+          const blob = new Blob([receiptText], { type: 'text/plain;charset=utf-8' });
+          const link = document.createElement('a');
+          link.href = URL.createObjectURL(blob);
+          link.download = filename;
+          
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+      }
+      
+      // Print Button: Finalize total, download file, save to history, and clear bill
+      printBtn.addEventListener('click', () => {
+          if (billBody.children.length === 0) {
+              alert('Cannot print an empty bill.');
+              return;
+          }
+          
+          // 1. Finalize and save current bill state
+          updateTotal(); 
+          const currentBillState = JSON.parse(localStorage.getItem(STORAGE_KEY_CURRENT_BILL));
+          
+          if (!currentBillState || currentBillState.items.length === 0) return;
+          
+          // 2. Download receipt file
+          const receiptText = printContainer.textContent;
+          downloadReceiptFile(receiptText, currentBillState.timestamp);
+
+          // 3. Save the finalized bill to history
+          saveHistory(currentBillState); 
+          
+          // 4. Trigger Print Dialog
+          if (paymentSelect && printPayment) printPayment.textContent = 'Payment: ' + paymentSelect.value;
+          window.print();
+          
+          // 5. Clear bill display and storage
+          billBody.innerHTML = '';
+          localStorage.removeItem(STORAGE_KEY_CURRENT_BILL);
+          updateTotal(); 
+      });
+
+      // Update payment method and re-calculate/save
+      if (paymentSelect && printPayment) {
+          paymentSelect.addEventListener('change', () => {
+              printPayment.textContent = 'Payment: ' + paymentSelect.value;
+              updateTotal(); 
+          });
+          printPayment.textContent = 'Payment: ' + (paymentSelect.value || 'UPI');
+      }
+
+      // --- Initialization ---
+      loadFromStorage(STORAGE_KEY_CURRENT_BILL);
+      updateTotal();
+      renderHistoryList(); 
+      showTab('current'); // Ensure we start on the Current Bill tab
+    });
+</script>
+
 </body>
 </html>
